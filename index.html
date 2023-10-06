@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>sparkle记事本</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+      #sparkle {
+        width: 500px;
+        margin: 50px auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-around;
+      }
+      .title {
+        font-size: 48px;
+        font-weight: 200;
+        width: 450px;
+        height: 70px;
+        line-height: 70px;
+        text-align: center;
+        color: rgb(7, 43, 71);
+      }
+      .contentBox {
+        width: 450px;
+        /* height: 200px; */
+        background-color: rgb(214, 235, 247);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+      .addContent {
+        width: 420px;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 5px;
+      }
+      .addContent .input {
+        width: 300px;
+        height: 50px;
+        border-top-left-radius: 5px;
+        border-bottom-left-radius: 5px;
+        border: 1px solid rgb(12, 76, 125);
+      }
+      .addContent .input input {
+        border: none;
+        width: 300px;
+        height: 50px;
+        border-top-left-radius: 5px;
+        border-bottom-left-radius: 5px;
+        font-size: 18px;
+      }
+      .addContent .input input:focus {
+        outline: none;
+      }
+
+      .addContent .add {
+        width: 120px;
+        height: 51.5px;
+        line-height: 50px;
+        background-color: rgb(12, 76, 125);
+        text-align: center;
+        border-top-right-radius: 5px;
+        border-bottom-right-radius: 5px;
+      }
+      .addContent .add .add-task {
+        border: none;
+        cursor: pointer;
+        color: white;
+        background-color: rgb(12, 76, 125);
+        font-size: 20px;
+        font-weight: 300;
+      }
+      .content {
+        width: 420px;
+        height: 40px;
+        border-bottom: 1px solid gray;
+        display: flex;
+        justify-content: flex-start;
+      }
+      .content:hover .del {
+        display: block;
+      }
+      .content .textContent {
+        width: 330px;
+        height: 40px;
+        line-height: 40px;
+      }
+
+      .content .del {
+        width: 70px;
+        height: 40px;
+        line-height: 40px;
+        text-align: center;
+        display: none;
+      }
+      .content .del .destroy {
+        border: none;
+        font-size: 15px;
+        color: gray;
+        background-color: rgb(214, 235, 247);
+        cursor: pointer;
+      }
+      .function {
+        width: 420px;
+        height: 20px;
+        display: flex;
+        justify-content: space-between;
+        color: gray;
+      }
+      .function .clear-completed {
+        border: none;
+        color: rgb(12, 76, 125);
+        background-color: transparent;
+        font-size: 15px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="sparkle">
+      <div class="title">sparkle记事本</div>
+      <div class="contentBox">
+        <div class="addContent">
+          <div class="input">
+            <input
+              type="text"
+              value=""
+              placeholder="请输入任务"
+              v-model="todoName"
+              @keyup.enter="addTask"
+            />
+          </div>
+          <div class="add">
+            <button @click="addTask" class="add-task">添加任务</button>
+          </div>
+        </div>
+        <div class="content" v-for="(item,index) in task " :key="item.id">
+          <!-- @mouseenter="controlShow"
+          @mouseleave="controlShow" -->
+          <div class="textContent">
+            <!-- 这里用id的话，若删除某一个任务，序号便会不连贯 -->
+            <span class="index">{{ index + 1 }}.</span>
+            <span> {{ item.name }} </span>
+          </div>
+          <div class="del">
+            <!-- 此处一定要使用id -->
+            <button class="destroy" @click="del(item.id)">✖</button>
+          </div>
+        </div>
+        <!-- 如果没有任务，下方的合计和清空任务需要隐藏 -->
+        <div class="function" v-show="task.length > 0">
+          <div class="sum">合计：<strong>{{ task.length }}</strong></div>
+          <div class="clear">
+            <button @click="clear" class="clear-completed">清空任务</button>
+          </div>
+        </div>
+      </div>
+      <span> 哈哈哈哈哈 </span>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
+
+    <script>
+      // 添加功能
+      // 1.获取输入框的内容v-model
+      // 2.点击按钮，新增任务 => 往数组中加元素
+      const sparkle = new Vue({
+        el: "#sparkle",
+        data: {
+          todoName: "",
+          task: [
+            { id: 1, name: "学习Vue" },
+            { id: 2, name: "跑步20min" },
+            { id: 3, name: "睡觉" },
+          ],
+        },
+        methods: {
+          del(id) {
+            this.task = this.task.filter((item) => item.id !== id);
+            // console.log(id);
+          },
+          addTask() {
+            //trim() 会移除字符串两端的空白字符，而不会移除字符串内部的空格
+            // 加一个判断，使得任务名称不能为空
+            if (this.todoName.trim() === "") {
+              alert("任务名称不能为空!");
+              return;
+            }
+            this.task.push({
+              // 使用时间戳当做id，来保持唯一性
+              id: +new Date(),
+              name: this.todoName,
+            });
+            // 在点击"添加任务之后"，输入框的内容需要清除
+            this.todoName = "";
+          },
+          clear() {
+            this.task = [];
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
